@@ -6,7 +6,7 @@ from sqlalchemy import func
 
 app = Flask(__name__)
 api = Api(app) #initialises the fact that we are using a restful api
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tmp.database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app) # db storage
 
 class VideModel(db.Model):
@@ -93,10 +93,15 @@ class Video(Resource):
         # return {video_id:args}
         # return {"Your video {name} has {likes} likes and {views} views.".format(name = video["name"],likes=video['likes'],views = video['views'])}
         # return {"data":"you have {likes} likes".format(likes=request.form["likes"])}
-    # def delete(self,video_id):
-    #     # abort_req_if_vid_id_nonexistent(video_id)
-    #     del videos[video_id]
-    #     return '',204 # 204->deleted successfully
+    @marshal_with(resource_fields)
+    def delete(self,video_id):
+        # abort_req_if_vid_id_nonexistent(video_id)
+        videobyid = VideModel.query.filter_by(id = video_id).first()
+        if not videobyid:
+            abort(404,message = "no video with that id")
+        db.session.delete(videobyid)
+        db.session.commit()
+        return "successfully deleted video",204 # 204->deleted successfully
         
 
     
