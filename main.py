@@ -1,6 +1,8 @@
 from flask import Flask,request
 from flask_restful import Api,Resource,reqparse,abort,fields,marshal_with
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
+
 
 app = Flask(__name__)
 api = Api(app) #initialises the fact that we are using a restful api
@@ -14,7 +16,7 @@ class VideModel(db.Model):
     views = db.Column(db.Integer, nullable = False)
 
     def __repr__(self):
-        return f"Video(name = {name}, views = {views}, likes = {likes})"#.format(name = name,views=views,likes=likes)
+        return f"Video(name = {VideModel.name}, views = {VideModel.views}, likes = {VideModel.likes})"#.format(name = name,views=views,likes=likes)
 
 
 #db.create_all() # do this only once
@@ -46,6 +48,21 @@ resource_fields = {
 #     if video_id in videos:
 #         abort(409, message = "video with id {vid} already stored".format(vid = video_id)) # 409-> conflict
 
+class allvideolist(Resource):
+    @marshal_with(resource_fields)
+    def get(self):
+       
+        rows = VideModel.query.count()
+        list =[]
+        for i in range(0,rows):
+            res = VideModel.query.filter_by(id=i).first()
+            list.append(res)
+        return list
+      
+            
+            
+
+         
 
 class Video(Resource):
     @marshal_with(resource_fields)
@@ -59,7 +76,7 @@ class Video(Resource):
         # return videos[video_id]        
 
     @marshal_with(resource_fields)
-    def put(self,video_id):
+    def post(self,video_id):
         # print(request.form['likes'])
         # print(request.form)
         # abort_put_if_vid_id_exists(video_id=video_id)
@@ -97,6 +114,7 @@ class Video(Resource):
 api.add_resource(Video, "/video/<int:video_id>") # "/" means default URL .... use /<type : name> to define the type of parameter u will accept 
 # /deutschHallo/<string:name>/<int:age>
 
+api.add_resource(allvideolist,"/allvideolist")
 
 if __name__ == "__main__":  
     app.run(debug=True) # this will start our server,flask app. (IF IN PRODUCTION ENV DO NOT RUN DEBUG=TRUE)
