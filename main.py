@@ -6,7 +6,7 @@ from sqlalchemy import func
 
 app = Flask(__name__)
 api = Api(app) #initialises the fact that we are using a restful api
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///databasenew.db'
 db = SQLAlchemy(app) # db storage
 
 class VideModel(db.Model):
@@ -14,12 +14,13 @@ class VideModel(db.Model):
     name = db.Column(db.String(100), nullable = False) # 100 is max characters allowed
     likes = db.Column(db.Integer, nullable = False)
     views = db.Column(db.Integer, nullable = False)
+    link = db.Column(db.String, nullable = True)
 
     def __repr__(self):
-        return f"Video(name = {VideModel.name}, views = {VideModel.views}, likes = {VideModel.likes})"#.format(name = name,views=views,likes=likes)
+        return f"Video(name = {VideModel.name}, views = {VideModel.views}, likes = {VideModel.likes}, link= {VideModel.link})"#.format(name = name,views=views,likes=likes)
 
 
-#db.create_all() # do this only once
+# db.create_all() # do this only once
 
 
 
@@ -30,12 +31,14 @@ video_put_args = reqparse.RequestParser()
 video_put_args.add_argument("name",type = str, help = "Name of video is required",required = True) #duplicate line with alt+shift+down/up
 video_put_args.add_argument("likes",type = int, help = "Likes on video is required",required = True)
 video_put_args.add_argument("views",type = int, help = "Views on video is required",required = True)
+video_put_args.add_argument("link",type = str, help = "Please provide a video link",required = False)
 
 resource_fields = {
     'id' : fields.Integer,
     'name' : fields.String,
     'views' : fields.Integer,
     'likes' : fields.Integer,
+    'link' : fields.String,
 }
 
 # videos = {} # memory storage 
@@ -85,7 +88,7 @@ class Video(Resource):
         if result:
             abort(409,message = "video id taken")
         # videos[video_id] = args #video_id will be key in the dict
-        video = VideModel(id = video_id, name = args['name'], likes = args['likes'],views = args['views'])
+        video = VideModel(id = video_id, name = args['name'], likes = args['likes'],views = args['views'],link=args['link'])
         db.session.add(video)
         db.session.commit()
         return video,201
