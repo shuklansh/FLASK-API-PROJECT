@@ -1,7 +1,7 @@
 
-# Reels-Clone
+# FLASK-VIDEOSTORE-API
 
-Reels clone application with video player. YouTube video links, from python Flask API. 
+Reels clone API with GET,POST,DELETE videos features. YouTube video links stored in database with SQLAlchemy. 
 
 
 ## Screenshots
